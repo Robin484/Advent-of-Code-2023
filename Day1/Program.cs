@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Day1
@@ -25,8 +26,6 @@ namespace Day1
             Regex regex = new Regex(@"\d");
             foreach (string line in File.ReadAllLines("input"))
             {
-
-                // Each empty line is a new elf
                 if (!string.IsNullOrEmpty(line))
                 {
                     var matches = regex.Matches(line);
@@ -44,17 +43,14 @@ namespace Day1
         {
             List<int> calibrationValue = new List<int>();
 
-            Regex regex = new Regex(@"(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)|\d");
             foreach (string line in File.ReadAllLines(input))
             {
-
-                // Each empty line is a new elf
                 if (!string.IsNullOrEmpty(line))
                 {
-                    var matches = regex.Matches(line);
+                    var matches = ScanAndConvertNumbers(line);
                     if (matches.Any())
                     {
-                        calibrationValue.Add(int.Parse(ConvertToNumbers($"{matches.First()}{matches.Last()}")));
+                        calibrationValue.Add(int.Parse($"{matches.First()}{matches.Last()}"));
                     }
                 }
             }
@@ -64,7 +60,8 @@ namespace Day1
 
         public static string ConvertToNumbers(string line)
         {
-            return line.Replace("one",   "1")
+            return line.Replace("zero",  "0")
+                       .Replace("one",   "1")
                        .Replace("two",   "2")
                        .Replace("three", "3")
                        .Replace("four",  "4")
@@ -73,6 +70,45 @@ namespace Day1
                        .Replace("seven", "7")
                        .Replace("eight", "8")
                        .Replace("nine",  "9");
+        }
+
+        public static List<int> ScanAndConvertNumbers(string line)
+        {
+            List<int> digits = new List<int>();
+            Dictionary<string, int> numbers = new Dictionary<string, int>() {
+                { "zoro", 0 },
+                { "one", 1 },
+                { "two", 2 },
+                { "three", 3 },
+                { "four", 4 },
+                { "five", 5 },
+                { "six", 6 },
+                { "seven", 7 },
+                { "eight", 8 },
+                { "nine", 9 }
+            };
+
+            //line = line.ToLower();
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                // if the character is a digit add it
+                if (char.IsDigit(line[i]))
+                {
+                    digits.Add(int.Parse(line[i].ToString()));
+                }
+
+                // Otherwise check if the character is a number (written as a word)
+                var subString = line.Substring(i);
+                foreach (string number in numbers.Keys)
+                {
+                    if (subString.StartsWith(number))
+                    {
+                        digits.Add(numbers[number]);
+                    }
+                }
+            }
+            return digits;
         }
     }
 }
